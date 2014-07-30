@@ -1,3 +1,11 @@
+#' Fit a generalized linear model via the adaptive lasso
+#' 
+#' @param formula a symbolic description of the model to be fitted
+#' @param data a data frame containing the variables in the model.
+#' @param family a description of the response distribution and link function for the model.
+#' @param weights 
+#' 
+#' @export
 adalasso <-
 function(formula, data, family, weights, s=NULL, verbose=FALSE, adapt=TRUE, selection.method='AICc', selectonly=FALSE) {
     #Create the object that will hold the output
@@ -23,7 +31,7 @@ function(formula, data, family, weights, s=NULL, verbose=FALSE, adapt=TRUE, sele
     
     f = as.formula(paste(paste(response.name, "~", sep=''), paste(predictor.names, collapse='+'), sep=''))
     if (adapt) {
-        result[['adapt']] = adaptive_weights_glmnet(formula=f, data=data, family=family, weights=weights, verbose=verbose)
+        result[['adapt']] = adaptive.weights(formula=f, data=data, family=family, weights=weights, verbose=verbose)
     } else {
         result[['adapt']] = NULL
     }
