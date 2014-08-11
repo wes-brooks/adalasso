@@ -1,0 +1,16 @@
+{
+    "contents" : "adalasso.step <-\nfunction(formula, data, family, weights, adaptive.object, s, verbose, selection.criterion) {\n    result = list()\n    \n    #Pull out the relevant data\n    response.name = rownames(attr(terms(formula, data=data), 'factors'))[1]\n    response.col = which(colnames(data)==response.name)\n    predictor.names = attr(terms(formula, data=data), 'term.labels')\n    \n    #extract the response and the covariates\n    y = as.matrix(data[,response.col])\n    x = as.matrix(data[,-response.col])\n    n <- nrow(x)\n\n    # center and scale the covariates\n    result[['meanx']] = adaptive.object[['meanx']]\n    result[['scale']] = adaptive.object[['adaweight']]\n    x.centered = sweep(x, 2, result[['meanx']], '-')\n    x.scaled = sweep(x.centered, 2, result[['scale']], '*')\n    \n    #family == 'binomial' requires p, 1-p to both be specified:\n    if (family == 'binomial') {\n        result[['model']] = model = glmnet(x=x.scaled, y=as.matrix(cbind(1-y, y), nrow(x), 2), family=family, weights=weights, lambda=s, standardize=FALSE, intercept=TRUE)\n        cv.obj = cv.glmnet(y=as.matrix(cbind(1-y, y), nrow(x), 2), x=x.scaled, nfolds=n, family=family, weights=weights, lambda=s, standardize=FALSE, intercept=TRUE)}\n    } else {\n        result[['model']] = model = glmnet(x=x.scaled, y=y, family=family, weights=weights, lambda=s, standardize=FALSE, intercept=TRUE)\n        cv.obj = cv.glmnet(y=y, x=x.scaled, nfolds=n, family=family, weights=weights, lambda=s, standardize=FALSE, intercept=TRUE)\n    }\n\n    #Get the deviance and degrees of freedom, in order to compute the decision criteria\n    dev = deviance(model)\n    df = sapply(predict(model, type='nonzero'), length) + 1\n    \n    #Compute the selection criteria\n    result[['AIC']] = dev + 2*df\n    result[['BIC']] = dev + log(n)*df\n    result[['AICc']] = dev + 2*df + 2*df*(df+1)/(n-df-1)\n    result[['CV']] = cv.obj$cv\n    \n    result[['lambda.index']] = lambda.index = which.min(result[[selection.criterion]])\n    result[['lambda']] = model[['lambda']][lambda.index]    \n    result[['coef']] = coef(result[['model']])\n\n    return(result)\n}\n",
+    "created" : 1407773008481.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1782450145",
+    "id" : "B5674C90",
+    "lastKnownWriteTime" : 1407773197,
+    "path" : "C:/Users/wrbrooks/git/adalasso/R/adalasso.step.R",
+    "project_path" : "R/adalasso.step.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

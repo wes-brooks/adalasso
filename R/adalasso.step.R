@@ -1,5 +1,5 @@
 adalasso.step <-
-function(formula, data, family, weights, adaptive.object, s, verbose, selection.method) {
+function(formula, data, family, weights, adaptive.object, s, verbose, selection.criterion) {
     result = list()
     
     #Pull out the relevant data
@@ -35,9 +35,9 @@ function(formula, data, family, weights, adaptive.object, s, verbose, selection.
     result[['AIC']] = dev + 2*df
     result[['BIC']] = dev + log(n)*df
     result[['AICc']] = dev + 2*df + 2*df*(df+1)/(n-df-1)
-    result[['CV']]
+    result[['CV']] = cv.obj
     
-    result[['lambda.index']] = lambda.index = which.min(AICc)
+    result[['lambda.index']] = lambda.index = which.min(result[[selection.criterion]])
     result[['lambda']] = model[['lambda']][lambda.index]    
     result[['coef']] = coef(result[['model']])
 
